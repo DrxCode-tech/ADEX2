@@ -1,10 +1,10 @@
 import { BrowserRouter as Router,Routes,Route } from "react-router-dom";
-import Main from "./ADEX.jsx";
-import CreateAcct from "./CreateAcct.jsx";
+import Main from "./ADEX/ADEX";
+import CreateAcct from "./ADEX/CreateAcct";
 
 export default function App(){
   return (
-    <Router >
+    <Router basename="/nxdex">
       <main>
         <Routes >
           <Route path='/create' element={<CreateAcct />} />
