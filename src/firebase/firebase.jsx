@@ -7,12 +7,11 @@ import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdJ1oZ5Wdm0Dsts27dcimYf1BAY5m543Y",
-  authDomain: "note-44501.firebaseapp.com",
-  projectId: "note-44501",
-  storageBucket: "note-44501.firebasestorage.app",
-  messagingSenderId: "65494389243",
-  appId: "1:65494389243:web:a7938405576405d9dafb5e",
-  measurementId: "G-KPHR5F2LBL",
+  authDomain: "attendanceapp-6abcb.firebaseapp.com",
+  projectId: "attendanceapp-6abcb",
+  storageBucket: "attendanceapp-6abcb.firebasestorage.app",
+  messagingSenderId: "849169932083",
+  appId: "1:849169932083:web:b4c22d965b436eae512846"
 };
 
 // Initialize Firebase
