@@ -1,22 +1,30 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ADEXimge from "../assets/ADEXimge.jpg";
 
+import { 
+  getRedirectResult, 
+  GoogleAuthProvider, 
+  signInWithRedirect 
+} from "firebase/auth";
+
 import { doc, getDoc } from "firebase/firestore";
-import { db, auth,GoogleAuthProvider, signInWithPopup } from "../firebase/firebase.jsx";
+import { db, auth } from "../firebase/firebase.jsx";
 
 import { initDB, addUser } from "./iDB";
 
+// Check if user email exists in DB
 async function checkUserEmailPresent(user) {
   const email = user.email.toLowerCase();
-  const ref = doc(db, 'EmailIndex', email);
+  const ref = doc(db, "EmailIndex", email);
+
   try {
-    const snapshot = await getDoc(ref);
-    if (snapshot.exists()) return { exists: true, data: snapshot.data() };
+    const snap = await getDoc(ref);
+    if (snap.exists()) return { exists: true, data: snap.data() };
     return { exists: false };
   } catch (err) {
-    console.error('Error checking user:', err.message);
-    alert(err.message);
+    console.error("Error checking user:", err.message);
+    return { exists: false };
   }
 }
 
@@ -24,66 +32,80 @@ export default function CreateAcct() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [spinnerVisible, setSpinnerVisible] = useState(false);
 
+  // Handle redirect result
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (!result) return;
+
+        const user = result.user;
+        console.log("Redirect login user:", user);
+
+        setLoadingMessage("Checking user data...");
+        setSpinnerVisible(true);
+
+        const check = await checkUserEmailPresent(user);
+
+        setSpinnerVisible(false);
+
+        if (check.exists) {
+          addUser(check.data);
+        } else {
+          alert("Sign in successful. Complete your registration.");
+        }
+      })
+      .catch((err) => {
+        console.error("Redirect error:", err.message);
+        alert(err.message);
+      });
+  }, []);
+
+  // Auto-login if stored locally
   const autoLoginIfStored = async () => {
     try {
-      const local = localStorage.getItem('currentUser');
-      let localResult = local ? JSON.parse(local) : null;
-      console.log(localResult);
+      const local = localStorage.getItem("currentUser");
+      const localResult = local ? JSON.parse(local) : null;
 
-      const db = await initDB();
-      const tx = db.transaction("users", "readonly");
+      const dbx = await initDB();
+      const tx = dbx.transaction("users", "readonly");
       const store = tx.objectStore("users");
-      const getUser = await store.getAll();
+      const getAll = await store.getAll();
 
-      if (getUser.result) {
-        setLoadingMessage(`${getUser.result.name || 'User'} logging in...`);
-        console.log(getUser.result);
-      }
-      else if (localResult) {
-        setLoadingMessage(`${localResult.name || 'User'} logging in...`);
-        console.log(localResult);
+      if (getAll.length > 0) {
+        setLoadingMessage(`${getAll[0].name || "User"} logging in...`);
+      } else if (localResult) {
+        setLoadingMessage(`${localResult.name || "User"} logging in...`);
       }
     } catch (err) {
-      console.error('Error during auto-login:', err);
+      console.error("Auto login error:", err);
     }
-  }
+  };
 
   useEffect(() => {
     autoLoginIfStored();
   }, []);
 
+  // Create Account Handler
   const handleCreateAcct = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      setLoadingMessage("Checking user data...");
       setSpinnerVisible(true);
+      setLoadingMessage("Redirecting...");
 
-      const check = await checkUserEmailPresent(user);
-      setSpinnerVisible(false);
-      console.log(check);
-      if (check.exists) {
-        addUser(check.data);
-      } else {
-        alert('Sign in successful. Please complete your registration.');
-      }
+      // Redirect (no result returned)
+      await signInWithRedirect(auth, provider);
+
     } catch (err) {
       setSpinnerVisible(false);
-      if (err.code === 'auth/popup-closed-by-user') {
-        alert("You closed the popup. Try again.");
-      } else {
-        console.log('Error from create acct button click :', err.message);
-        alert(err.message);
-      }
+      console.error("Create account error:", err.message);
+      alert(err.message);
     }
   };
 
   return (
     <div className="relative bg-black flex flex-col justify-center items-center w-full h-screen overflow-hidden p-6">
 
-      {/* 🔥 Floating Neon Blobs (Gen-Z Energy) */}
+      {/* Floating Glows */}
       <div className="absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl -top-40 -left-40 animate-pulse"></div>
       <div className="absolute w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-3xl bottom-0 right-0 animate-pulse delay-500"></div>
 
@@ -113,7 +135,7 @@ export default function CreateAcct() {
         ADEX
       </motion.div>
 
-      {/* Glass Card */}
+      {/* Card */}
       <motion.div
         initial={{ y: 70, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -123,14 +145,12 @@ export default function CreateAcct() {
         bg-white/10 backdrop-blur-xl border border-white/20 
         shadow-lg shadow-green-500/10 w-80 rounded-3xl p-8 mt-10 relative scale-110"
       >
-        {/* Glow circle behind avatar */}
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ repeat: Infinity, duration: 3 }}
           className="absolute w-40 h-40 rounded-full bg-green-400/10 blur-2xl -top-8"
         ></motion.div>
 
-        {/* Profile Icon */}
         <motion.div
           whileHover={{ scale: 1.1, rotate: 6 }}
           className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400/40 to-green-700/40 
@@ -143,7 +163,6 @@ export default function CreateAcct() {
           Welcome to ADEX
         </h2>
 
-        {/* Create Button */}
         <motion.button
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
@@ -164,7 +183,6 @@ export default function CreateAcct() {
         </motion.button>
       </motion.div>
 
-      {/* Footer */}
       <motion.p
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
