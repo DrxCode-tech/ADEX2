@@ -143,7 +143,7 @@ function Body() {
               "rounded-xl border border-green-500/30 shadow-lg shadow-green-900/20",
           }}
         />
-        <div className="flex gap-3 mt-3">
+        <div className="flex gap-3 my-2">
           <button
             onClick={clearSignature}
             className="px-5 py-1 bg-green-700/60 text-white rounded-md hover:bg-green-600"
@@ -180,7 +180,7 @@ function Nav() {
     { id: "history", label: "View History", icon: AlarmClock },
     { id: "adex", label: "ADEX_I", icon: TrainFront },
     { id: "notify", label: "Notify Me", icon: Bell },
-    { id: "marked", label: "See Who Marked", icon: UsersRound },
+    { id: "marked", label: "Who Marked", icon: UsersRound },
   ];
 
   return (
