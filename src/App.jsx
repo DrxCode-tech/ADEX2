@@ -4,7 +4,7 @@ import CreateAcct from "./ADEX/CreateAcct";
 
 export default function App(){
   return (
-    <Router basename="/nxdex">
+    <Router>
       <main>
         <Routes >
           <Route path='/create' element={<CreateAcct />} />
