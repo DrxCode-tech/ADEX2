@@ -8,12 +8,12 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyBdJ1oZ5Wdm0Dsts27dcimYf1BAY5m543Y",
   authDomain: "attendanceapp-6abcb.firebaseapp.com",
+  databaseURL: "https://attendanceapp-6abcb-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "attendanceapp-6abcb",
   storageBucket: "attendanceapp-6abcb.firebasestorage.app",
   messagingSenderId: "849169932083",
   appId: "1:849169932083:web:b4c22d965b436eae512846"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
