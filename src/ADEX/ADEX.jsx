@@ -143,7 +143,7 @@ function Body() {
               "rounded-xl border border-green-500/30 shadow-lg shadow-green-900/20",
           }}
         />
-        <div className="flex gap-3 my-2">
+        <div className="flex gap-3 my-4">
           <button
             onClick={clearSignature}
             className="px-5 py-1 bg-green-700/60 text-white rounded-md hover:bg-green-600"
