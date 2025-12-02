@@ -36,7 +36,7 @@ export default function CreateAcct() {
   useEffect(() => {
     getRedirectResult(auth)
       .then(async (result) => {
-        if (!result) return;
+        if (!result) return alert("No redirect result found.");
 
         const user = result.user;
         console.log("Redirect login user:", user);
