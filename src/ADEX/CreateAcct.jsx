@@ -121,7 +121,7 @@ export default function CreateAcct() {
         whileHover={{ scale: 1.02 }}
         className="flex flex-col items-center gap-6 
         bg-white/10 backdrop-blur-xl border border-white/20 
-        shadow-lg shadow-green-500/10 w-80 rounded-3xl p-8 mt-10 relative"
+        shadow-lg shadow-green-500/10 w-80 rounded-3xl p-8 mt-10 relative scale-110"
       >
         {/* Glow circle behind avatar */}
         <motion.div
