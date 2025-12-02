@@ -75,7 +75,7 @@ export default function CreateAcct() {
         alert("You closed the popup. Try again.");
       } else {
         console.log('Error from create acct button click :', err.message);
-        alert("Oops your internet connection is bad");
+        alert(err.message);
       }
     }
   };
