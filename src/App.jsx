@@ -5,7 +5,7 @@ import CreateAcct from "./ADEX/CreateAcct";
 export default function App(){
   return (
     <Router>
-      <main>
+      <main className="w-full">
         <Routes >
           <Route path='/create' element={<CreateAcct />} />
           <Route path='/' element={<Main />}/>
