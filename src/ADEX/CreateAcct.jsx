@@ -63,7 +63,7 @@ export default function CreateAcct() {
 
       const check = await checkUserEmailPresent(user);
       setSpinnerVisible(false);
-
+      console.log(check);
       if (check.exists) {
         addUser(check.data);
       } else {
