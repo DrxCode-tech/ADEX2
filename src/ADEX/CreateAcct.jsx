@@ -13,17 +13,18 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebase.jsx";
 
-import { initDB, addUser, getUser } from "./iDB";
+import { addUser, getUser } from "./iDB";
 
-// Check if user email exists in DB
+// 🔹 Check if user exists in Firestore EmailIndex
 async function checkUserEmailPresent(user) {
   const email = user.email.toLowerCase();
   const ref = doc(db, "EmailIndex", email);
 
   try {
     const snap = await getDoc(ref);
-    if (snap.exists()) return { exists: true, data: snap.data() };
-    return { exists: false };
+    return snap.exists()
+      ? { exists: true, data: snap.data() }
+      : { exists: false };
   } catch (err) {
     console.error("Error checking user:", err.message);
     return { exists: false };
@@ -35,7 +36,9 @@ export default function CreateAcct() {
   const [spinnerVisible, setSpinnerVisible] = useState(false);
   const navigate = useNavigate();
 
-  // 🔹 Stable auth listener — fires every time user logs in
+  // ─────────────────────────────────────────────
+  // 🔹 AUTH STATE LISTENER
+  // ─────────────────────────────────────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) return;
@@ -48,16 +51,22 @@ export default function CreateAcct() {
       setSpinnerVisible(false);
 
       if (check.exists) {
+        // Save user locally
         await addUser(check.data);
+
+        // Navigate to dashboard
+        navigate("/");
       } else {
         alert("Sign in successful. Complete your registration.");
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
-  // 🔹 Handle redirect errors only
+  // ─────────────────────────────────────────────
+  // 🔹 HANDLE REDIRECT ERRORS
+  // ─────────────────────────────────────────────
   useEffect(() => {
     getRedirectResult(auth).catch((err) => {
       console.error("Redirect error:", err.message);
@@ -65,31 +74,37 @@ export default function CreateAcct() {
     });
   }, []);
 
-  // Auto-login if stored locally
-  const autoLoginIfStored = async () => {
-    try {
-      const local = localStorage.getItem("currentUser");
-      const localResult = local ? JSON.parse(local) : null;
-
-      const getAll = await getUser();
-
-      if (getAll.length > 0) {
-        setLoadingMessage(`${getAll.name || "User"} logging in...`);
-        navigate("/");
-      } else if (localResult) {
-        setLoadingMessage(`${localResult.name || "User"} logging in...`);
-        navigate("/");
-      }
-    } catch (err) {
-      console.error("Auto login error:", err);
-    }
-  };
-
+  // ─────────────────────────────────────────────
+  // 🔹 AUTO LOGIN IF USER IS STORED LOCALLY
+  // ─────────────────────────────────────────────
   useEffect(() => {
-    autoLoginIfStored();
-  }, []);
+    async function autoLogin() {
+      try {
+        const storedUser = await getUser(); // Always returns single object
+        const local = localStorage.getItem('currentUser');
+        const localUser = local ? JSON.parse(local) : null;
 
-  // Create Account Handler
+        if (storedUser) {
+          setSpinnerVisible(true);
+          setLoadingMessage(`${storedUser.name || "User"} logging in...`);
+          navigate("/");
+        }
+        else if (localUser) {
+          setSpinnerVisible(true);
+          setLoadingMessage(`${localUser.name || "User"} logging in...`);
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Auto login error:", err);
+      }
+    }
+
+    autoLogin();
+  }, [navigate]);
+
+  // ─────────────────────────────────────────────
+  // 🔹 HANDLE CREATE ACCOUNT
+  // ─────────────────────────────────────────────
   const handleCreateAcct = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -103,8 +118,11 @@ export default function CreateAcct() {
     }
   };
 
+  // ─────────────────────────────────────────────
+  // 🔹 UI
+  // ─────────────────────────────────────────────
   return (
-    <div className="relative bg-black flex flex-col justify-start items-center  w-full h-screen overflow-hidden p-6">
+    <div className="relative bg-black flex flex-col justify-start items-center w-full h-screen overflow-hidden p-6">
 
       {/* Floating Glows */}
       <div className="absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl -top-40 -left-40 animate-pulse"></div>
@@ -117,13 +135,12 @@ export default function CreateAcct() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-  flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-2xl
-  border border-green-400/40 shadow-lg shadow-green-500/20 z-50 w-80 h-24"
+          flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-2xl
+          border border-green-400/40 shadow-lg shadow-green-500/20 z-50 w-80 h-24"
         >
           <div className="w-10 h-10 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-green-400 font-semibold text-lg text-center">{loadingMessage}</p>
         </motion.div>
-
       )}
 
       {/* Logo */}
@@ -151,7 +168,7 @@ export default function CreateAcct() {
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ repeat: Infinity, duration: 3 }}
           className="absolute w-40 h-40 rounded-full bg-green-400/10 blur-2xl -top-8"
-        ></motion.div>
+        />
 
         <motion.div
           whileHover={{ scale: 1.1, rotate: 6 }}
@@ -201,6 +218,7 @@ export default function CreateAcct() {
           Login
         </span>
       </motion.p>
+
     </div>
   );
 }
