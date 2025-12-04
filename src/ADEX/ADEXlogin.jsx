@@ -4,11 +4,14 @@ import {
   getDoc,
   doc,
 } from "firebase/firestore";
+import { addUser, deleteUser } from "./iDB.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function ADEXLogin() {
   const [regNm, setRegNm] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", state: null }); // success or fail
+  const navigate = useNavigate();
 
   // ===== MESSAGE DISPLAY =====
   const showMessage = (state, text) => {
@@ -65,34 +68,13 @@ export default function ADEXLogin() {
   }
 
   // ===== CLEAR LOCAL STORAGE =====
-  function clearUserData() {
-    localStorage.removeItem("currentUser");
+  async function clearUserData() {
+    await deleteUser();
     localStorage.removeItem("att-his");
     localStorage.removeItem("att-his-state");
 
     indexedDB.deleteDatabase("AdexUsers");
     indexedDB.deleteDatabase("warn");
-  }
-
-  // ===== ADD USER TO INDEXEDDB =====
-  function addUserToIndexedDB(userObj) {
-    localStorage.setItem("currentUser", JSON.stringify(userObj));
-
-    const request = indexedDB.open("AdexUsers", 2);
-
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains("users")) {
-        db.createObjectStore("users");
-      }
-    };
-
-    request.onsuccess = (event) => {
-      const db = event.target.result;
-      const tx = db.transaction("users", "readwrite");
-      tx.objectStore("users").put(userObj, "currentUser");
-      tx.oncomplete = () => db.close();
-    };
   }
 
   // ==== SUBMIT LOGIN ====
@@ -119,18 +101,18 @@ export default function ADEXLogin() {
 
     if (userData.regNm === reg) {
       clearUserData();
-      addUserToIndexedDB(userData);
+      await addUser(userData);
 
       setLoading(false);
       showMessage(true, "Login successful!");
 
       return setTimeout(() => {
-        window.location.href = "/V3ADEX";
+        navigate("/");
       }, 1500);
     } else {
       setLoading(false);
       showMessage(false, "Credentials do not match.");
-      clearUserData();
+      await clearUserData();
     }
   }
 
@@ -173,10 +155,10 @@ export default function ADEXLogin() {
 
         {/* Footer */}
         <button
-          onClick={() => window.location.href = "/"}
+          onClick={() => navigate("/create")}
           className="mt-6 w-full text-center text-yellow-400 font-bold"
         >
-          Don’t have an account? <span>Create one</span>
+          Don’t have an account? <span className="text-blue-500 ">Create one</span>
         </button>
       </div>
 

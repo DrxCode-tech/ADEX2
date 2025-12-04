@@ -11,10 +11,25 @@ export const initDB = () => {
 }
 
 export const addUser = async (userObj) => {
-    localStorage.setItem('currentUser', JSON.stringify(Array.from(Object.entries(userObj))));
+    localStorage.setItem('currentUser', JSON.stringify(userObj));
     const db = await initDB();
     const tx = db.transaction("users", "readwrite");
-    const store = tx.objectStore("users");
-    await store.add(userObj);
+
+    // Always save under the same ID "current"
+    await tx.store.put(userObj, "current");
+
     await tx.done;
-}
+};
+
+export const getUser = async () => {
+    const db = await initDB();
+    return await db.get("users", "current");
+};
+
+export const deleteUser = async () => {
+    localStorage.removeItem('currentUser');
+    const db = await initDB();
+    await db.delete("users", "current");
+};
+
+

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ADEXimge from "../assets/ADEXimge.jpg";
+import { useNavigate } from "react-router-dom";
 
 import {
   GoogleAuthProvider,
@@ -12,7 +13,7 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase/firebase.jsx";
 
-import { initDB, addUser } from "./iDB";
+import { initDB, addUser, getUser } from "./iDB";
 
 // Check if user email exists in DB
 async function checkUserEmailPresent(user) {
@@ -32,6 +33,7 @@ async function checkUserEmailPresent(user) {
 export default function CreateAcct() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [spinnerVisible, setSpinnerVisible] = useState(false);
+  const navigate = useNavigate();
 
   // 🔹 Stable auth listener — fires every time user logs in
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function CreateAcct() {
       setSpinnerVisible(false);
 
       if (check.exists) {
-        addUser(check.data);
+        await addUser(check.data);
       } else {
         alert("Sign in successful. Complete your registration.");
       }
@@ -69,15 +71,14 @@ export default function CreateAcct() {
       const local = localStorage.getItem("currentUser");
       const localResult = local ? JSON.parse(local) : null;
 
-      const dbx = await initDB();
-      const tx = dbx.transaction("users", "readonly");
-      const store = tx.objectStore("users");
-      const getAll = await store.getAll();
+      const getAll = await getUser();
 
       if (getAll.length > 0) {
-        setLoadingMessage(`${getAll[0].name || "User"} logging in...`);
+        setLoadingMessage(`${getAll.name || "User"} logging in...`);
+        navigate("/");
       } else if (localResult) {
         setLoadingMessage(`${localResult.name || "User"} logging in...`);
+        navigate("/");
       }
     } catch (err) {
       console.error("Auto login error:", err);
@@ -196,7 +197,7 @@ export default function CreateAcct() {
         className="text-sm text-white/60 mt-8"
       >
         Already have an account?{" "}
-        <span className="text-green-400 cursor-pointer hover:underline hover:text-green-300">
+        <span tabIndex="0" onClick={() => navigate("/login")} className="text-green-400 cursor-pointer hover:underline hover:text-green-300">
           Login
         </span>
       </motion.p>
