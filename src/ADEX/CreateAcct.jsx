@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ADEXimge from "../assets/ADEXimge.jpg";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged
 } from "firebase/auth";
 
 import { doc, getDoc } from "firebase/firestore";
@@ -14,7 +17,7 @@ import { db, auth } from "../firebase/firebase.jsx";
 import { addUser } from "./iDB";
 
 // ─────────────────────────────────────────────
-// 🔹 CHECK IF USER EMAIL EXISTS IN FIRESTORE
+// 🔸 CHECK FIRESTORE IF USER EMAIL EXISTS
 // ─────────────────────────────────────────────
 async function checkUserEmailPresent(user) {
   const email = user.email.toLowerCase();
@@ -26,60 +29,104 @@ async function checkUserEmailPresent(user) {
       ? { exists: true, data: snap.data() }
       : { exists: false };
   } catch (err) {
-    console.error("Error checking user:", err.message);
+    console.error("Email check error:", err.message);
     return { exists: false };
   }
 }
 
-export default function CreateAcctPOP() {
-  const [loadingMessage, setLoadingMessage] = useState("");
+// ─────────────────────────────────────────────
+// 🔸 UNIVERSAL PAGE
+// ─────────────────────────────────────────────
+export default function CreateAcct() {
   const [spinnerVisible, setSpinnerVisible] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const navigate = useNavigate();
 
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const provider = new GoogleAuthProvider();
+
   // ─────────────────────────────────────────────
-  // 🔹 HANDLE GOOGLE POPUP AUTH
+  // 🔸 HANDLE THE USER AFTER AUTH
+  // ─────────────────────────────────────────────
+  async function processUser(user) {
+    if (!user) return;
+
+    setSpinnerVisible(true);
+    setLoadingMessage("Checking your account...");
+
+    const check = await checkUserEmailPresent(user);
+
+    if (check.exists) {
+      await addUser(check.data);
+      localStorage.setItem("currentUser", JSON.stringify(check.data));
+      navigate("/");
+    } else {
+      localStorage.setItem(
+        "pendingUser",
+        JSON.stringify({
+          email: user.email,
+          name: user.displayName,
+          uid: user.uid,
+          photo: user.photoURL,
+        })
+      );
+      navigate("/register");
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // 🔸 HANDLE REDIRECT RETURN (MOBILE)
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    async function handleRedirect() {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result) return;
+        await processUser(result.user);
+      } catch (err) {
+        console.error("Redirect error:", err.message);
+      }
+    }
+    handleRedirect();
+  }, []);
+
+  // ─────────────────────────────────────────────
+  // 🔸 AUTH LISTENER (CATCH ALL CASES)
+  // ─────────────────────────────────────────────
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      await processUser(user);
+    });
+    return () => unsub();
+  }, []);
+
+  // ─────────────────────────────────────────────
+  // 🔸 MAIN LOGIN HANDLER (AUTO-CHOOSES METHOD)
   // ─────────────────────────────────────────────
   const handleCreateAcct = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-
       setSpinnerVisible(true);
-      setLoadingMessage("Opening Google popup...");
 
-      // 1. SIGN IN WITH POPUP
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      if (!user) {
-        setSpinnerVisible(false);
-        alert("Authentication failed.");
+      if (isMobile) {
+        setLoadingMessage("Redirecting to Google...");
+        await signInWithRedirect(auth, provider);
         return;
       }
 
-      setLoadingMessage("Checking your account...");
+      setLoadingMessage("Opening popup...");
+      const result = await signInWithPopup(auth, provider);
+      await processUser(result.user);
 
-      // 2. CHECK FIRESTORE IF USER EXISTS
-      const check = await checkUserEmailPresent(user);
-
-      setSpinnerVisible(false);
-
-      if (check.exists) {
-        // 3a. USER EXISTS → SAVE LOCAL + SEND TO HOME
-        await addUser(check.data);
-        localStorage.setItem("currentUser", JSON.stringify(check.data));
-        navigate("/");
-      } else {
-        navigate("/register");
-      }
     } catch (err) {
       setSpinnerVisible(false);
-      console.error("Google popup error:", err.message);
+      console.error("Login error:", err.message);
       alert(err.message);
     }
   };
 
   // ─────────────────────────────────────────────
-  // 🔹 UI
+  // 🔸 UI
   // ─────────────────────────────────────────────
   return (
     <div className="relative bg-black flex flex-col justify-start items-center w-full h-screen overflow-hidden p-6">
@@ -122,7 +169,7 @@ export default function CreateAcctPOP() {
         bg-white/10 backdrop-blur-xl border border-white/20 
         shadow-lg shadow-green-500/10 w-80 rounded-3xl p-8 mt-10 relative scale-110"
       >
-        {/* Profile Placeholder Glow */}
+        {/* Glow */}
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ repeat: Infinity, duration: 3 }}
@@ -141,7 +188,7 @@ export default function CreateAcctPOP() {
           Welcome to ADEX
         </h2>
 
-        {/* GOOGLE POPUP BUTTON */}
+        {/* Login Button */}
         <motion.button
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
