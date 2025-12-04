@@ -4,6 +4,7 @@ import { Menu,UserCircle2,HardHat,Bell,TrainFront,UsersRound,AlarmClock } from "
 import SignatureCanvas from "react-signature-canvas";
 import ADEXimge from "../assets/ADEXimge.jpg";
 import { getUser } from "./iDB";
+import { useNavigate } from "react-router-dom";
 
 // Define parent and child variants
 const parentVariants = {
@@ -27,17 +28,19 @@ const childVariants = {
 
 function Head() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchUser() {
+      const stud = localStorage.getItem("currentUser");
       const storedUser = await getUser();
       if (storedUser) {
         setUser(storedUser);
-      }else {
-        const stud = localStorage.getItem("currentUser");
-        if (stud) {
-          setUser(JSON.parse(stud));
-        }
+      }else if (stud) {
+        setUser(JSON.parse(stud));
+      }
+      else {
+        navigate("/create");
       }
     }
     fetchUser();

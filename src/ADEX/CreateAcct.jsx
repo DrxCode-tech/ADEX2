@@ -165,7 +165,6 @@ export default function CreateAcctPOP() {
           Login
         </span>
       </motion.p>
-
     </div>
   );
 }
