@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import { Menu,UserCircle2,HardHat,Bell,TrainFront,UsersRound,AlarmClock } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
 import ADEXimge from "../assets/ADEXimge.jpg";
+import { getUser } from "./iDB";
 
 // Define parent and child variants
 const parentVariants = {
@@ -25,6 +26,16 @@ const childVariants = {
 };
 
 function Head() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const storedUser = await getUser();
+      setUser(storedUser);
+    }
+    fetchUser();
+  }, []);
+
   return (
     <motion.div
       variants={parentVariants}
@@ -68,11 +79,11 @@ function Head() {
           <div className="flex justify-center items-center gap-2">
             <UserCircle2 className="text-green-400" size={30} />
             <p className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent text-xl">
-              Daniel Anietie Ekanem
+              {user?.name || "Guest"}
             </p>
           </div>
           <p className="text-sm text-green-900 w-full flex justify-end items-center">
-            24/EG/CO/289
+            {user?.regNm || "24/EG/CO/289"}
           </p>
         </motion.div>
 
@@ -80,7 +91,7 @@ function Head() {
           variants={childVariants}
           className="flex justify-center items-center gap-2"
         >
-          <span className="text-md text-green-400">CMPE</span>
+          <span className="text-md text-green-400">{user?.department || "dept"}</span>
           <HardHat className="text-green-400/40" size={25} />
         </motion.div>
       </motion.div>
