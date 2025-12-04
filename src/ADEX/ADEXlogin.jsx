@@ -4,6 +4,8 @@ import {
   getDoc,
   doc,
 } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase.jsx";
 import { addUser, deleteUser } from "./iDB.jsx";
 import { useNavigate } from "react-router-dom";
 
@@ -53,6 +55,28 @@ export default function ADEXLogin() {
     return false;
   }
 
+  async function clearUserData() {
+    // SIGN OUT from Firebase Auth (critical for mobile)
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn("Sign-out warning:", err.message);
+    }
+
+    // CLEAR IDB USER
+    await deleteUser();
+
+    // CLEAR OTHER STORES
+    localStorage.removeItem("att-his");
+    localStorage.removeItem("att-his-state");
+    localStorage.removeItem("currentUser");
+
+    // CLEAR INDEXEDDB DATABASES
+    indexedDB.deleteDatabase("ADEXusers");
+    indexedDB.deleteDatabase("warn");
+  }
+
+
   // ===== INTERNET CHECK =====
   async function isOnline() {
     try {
@@ -66,17 +90,6 @@ export default function ADEXLogin() {
       return false;
     }
   }
-
-  // ===== CLEAR LOCAL STORAGE =====
-  async function clearUserData() {
-    await deleteUser();
-    localStorage.removeItem("att-his");
-    localStorage.removeItem("att-his-state");
-
-    indexedDB.deleteDatabase("ADEXusers");   // Correct name
-    indexedDB.deleteDatabase("warn");
-}
-
 
   // ==== SUBMIT LOGIN ====
   async function handleLogin(e) {
