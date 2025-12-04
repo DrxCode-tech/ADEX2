@@ -73,9 +73,10 @@ export default function ADEXLogin() {
     localStorage.removeItem("att-his");
     localStorage.removeItem("att-his-state");
 
-    indexedDB.deleteDatabase("AdexUsers");
+    indexedDB.deleteDatabase("ADEXusers");   // Correct name
     indexedDB.deleteDatabase("warn");
-  }
+}
+
 
   // ==== SUBMIT LOGIN ====
   async function handleLogin(e) {
