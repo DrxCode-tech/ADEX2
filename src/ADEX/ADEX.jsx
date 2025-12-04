@@ -36,6 +36,8 @@ function Head() {
     fetchUser();
   }, []);
 
+  alert(JSON.stringify(user));
+
   return (
     <motion.div
       variants={parentVariants}
