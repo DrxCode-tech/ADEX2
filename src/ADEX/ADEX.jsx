@@ -31,12 +31,17 @@ function Head() {
   useEffect(() => {
     async function fetchUser() {
       const storedUser = await getUser();
-      setUser(storedUser);
+      if (storedUser) {
+        setUser(storedUser);
+      }else {
+        const stud = localStorage.getItem("currentUser");
+        if (stud) {
+          setUser(JSON.parse(stud));
+        }
+      }
     }
     fetchUser();
   }, []);
-
-  alert(JSON.stringify(user));
 
   return (
     <motion.div
@@ -85,7 +90,7 @@ function Head() {
             </p>
           </div>
           <p className="text-sm text-green-900 w-full flex justify-end items-center">
-            {user?.regNm || "24/EG/CO/289"}
+            {user?.regNm || "reg number"}
           </p>
         </motion.div>
 
@@ -93,7 +98,7 @@ function Head() {
           variants={childVariants}
           className="flex justify-center items-center gap-2"
         >
-          <span className="text-md text-green-400">{user?.department || "dept"}</span>
+          <span className="text-md text-green-400">{user?.dept || "dept"}</span>
           <HardHat className="text-green-400/40" size={25} />
         </motion.div>
       </motion.div>

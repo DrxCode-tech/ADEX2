@@ -97,10 +97,11 @@ export default function ADEXLogin() {
       setLoading(false);
       showMessage(false, "User not found.");
       clearUserData();
-      return (window.location.href = "/");
+      return navigate("/create");
     }
 
     if (userData.regNm === reg) {
+      alert("user data" + JSON.stringify(userData));
       clearUserData();
       await addUser(userData);
 
@@ -116,6 +117,11 @@ export default function ADEXLogin() {
       await clearUserData();
     }
   }
+
+  const handleNavigateToCreate = () => {
+    clearUserData();
+    navigate("/create");
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-[radial-gradient(circle_at_top_right,black,#213d1c)] text-green-500 font-sans">
@@ -156,7 +162,7 @@ export default function ADEXLogin() {
 
         {/* Footer */}
         <button
-          onClick={() => navigate("/create")}
+          onClick={handleNavigateToCreate}
           className="mt-6 w-full text-center text-yellow-400 font-bold"
         >
           Don’t have an account? <span className="text-blue-500 ">Create one</span>
