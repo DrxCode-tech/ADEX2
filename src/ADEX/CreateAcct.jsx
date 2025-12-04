@@ -103,7 +103,7 @@ export default function CreateAcct() {
   };
 
   return (
-    <div className="relative bg-black flex flex-col justify-center items-start w-full h-screen overflow-hidden p-6">
+    <div className="relative bg-black flex flex-col justify-start items-center  w-full h-screen overflow-hidden p-6">
 
       {/* Floating Glows */}
       <div className="absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl -top-40 -left-40 animate-pulse"></div>
