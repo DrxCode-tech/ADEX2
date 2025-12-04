@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { db } from "../firebaseConfig";
+import { db } from "../firebase/firestore.jsx";
 import {
   getDoc,
   doc,
