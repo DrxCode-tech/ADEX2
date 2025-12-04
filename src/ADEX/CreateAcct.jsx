@@ -115,13 +115,14 @@ export default function CreateAcct() {
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 
-          flex items-center gap-4 bg-black/40 backdrop-blur-xl p-4 rounded-2xl 
-          border border-green-400/40 shadow-lg shadow-green-500/20 z-50 w-72 h-20"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+  flex items-center gap-4 bg-black/40 backdrop-blur-xl p-6 rounded-2xl
+  border border-green-400/40 shadow-lg shadow-green-500/20 z-50 w-80 h-24"
         >
           <div className="w-10 h-10 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-green-400 font-semibold text-lg">{loadingMessage}</p>
+          <p className="text-green-400 font-semibold text-lg text-center">{loadingMessage}</p>
         </motion.div>
+
       )}
 
       {/* Logo */}
