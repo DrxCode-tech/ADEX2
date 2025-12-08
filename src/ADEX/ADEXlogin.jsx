@@ -109,7 +109,7 @@ export default function ADEXLogin() {
       setLoading(false);
       showMessage(false, "User not found.");
       clearUserData();
-      return navigate("/create");
+      return navigate("/");
     }
 
     if (userData.regNm === reg) {
@@ -121,7 +121,7 @@ export default function ADEXLogin() {
       showMessage(true, "Login successful!");
 
       return setTimeout(() => {
-        navigate("/");
+        navigate("/main");
       }, 1500);
     } else {
       setLoading(false);
@@ -132,7 +132,7 @@ export default function ADEXLogin() {
 
   const handleNavigateToCreate = () => {
     clearUserData();
-    navigate("/create");
+    navigate("/");
   };
 
   return (

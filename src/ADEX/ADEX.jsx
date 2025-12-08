@@ -74,7 +74,7 @@ function Head() {
         setUser(stud);
       }
       else {
-        navigate("/create");
+        navigate("/");
       }
     }
     fetchUser();

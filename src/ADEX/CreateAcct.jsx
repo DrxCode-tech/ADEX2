@@ -61,7 +61,7 @@ export default function CreateAcct() {
     if (check.exists) {
       await addUser(check.data);
       localStorage.setItem("currentUser", JSON.stringify(check.data));
-      navigate("/");
+      navigate("/main");
     } else {
       localStorage.setItem(
         "pendingUser",

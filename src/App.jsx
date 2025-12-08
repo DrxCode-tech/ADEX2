@@ -12,8 +12,8 @@ export default function App(){
     <Router>
       <main className="w-full bg-black">
         <Routes >
-          <Route path='/create' element={<CreateAcctPOP />} />
-          <Route path='/' element={<Main />}/>
+          <Route path='/' element={<CreateAcctPOP />} />
+          <Route path='/main' element={<Main />}/>
           <Route path='/login' element={<ADEXLogin />} />
           <Route path='/signup' element={<CreateAccount />} />
           <Route path='/linknx' element={<LinkNX />} />

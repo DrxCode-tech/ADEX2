@@ -78,7 +78,7 @@ export default function CreateAccount() {
 
     await addUser(user);
     showMessage(true, `Welcome back ${user.name}`);
-    navigate("/");
+    navigate("/main");
   }
 
   // ================= CREATE ACCOUNT =================
