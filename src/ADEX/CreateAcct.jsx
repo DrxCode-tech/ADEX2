@@ -208,9 +208,9 @@ export default function CreateAcct() {
         className="text-sm text-white/60 mt-8"
       >
         Already have an account?{" "}
-        <span tabIndex={0} onClick={() => navigate("/login")} className="text-green-400 cursor-pointer hover:underline">
-          Login
-        </span>
+        <button onClick={() => navigate("/login")} className="oorder border-none background-transparent text-green-400 cursor-pointer hover:underline">
+          Login now!
+        </button>
       </motion.p>
     </div>
   );
