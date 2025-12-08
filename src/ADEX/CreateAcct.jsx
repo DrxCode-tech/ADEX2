@@ -141,11 +141,15 @@ export default function CreateAcct() {
   // 🔸 UI
   // ─────────────────────────────────────────────
   return (
-    <div className="relative bg-black flex flex-col justify-start items-center w-full h-screen overflow-hidden p-6">
+    <div className="relative z-20 bg-black flex flex-col justify-start items-center w-full h-screen overflow-hidden p-6">
 
       {/* Floating Glows */}
-      <div className="absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl -top-40 -left-40 animate-pulse"></div>
-      <div className="absolute w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-3xl bottom-0 right-0 animate-pulse delay-500"></div>
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="pointer-events-none absolute w-[500px] h-[500px] bg-green-500/20 rounded-full blur-3xl -top-40 -left-40 animate-pulse"></div>
+        <div className="pointer-events-none absolute w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-3xl bottom-0 right-0 animate-pulse delay-500"></div>
+      </div>
+
+
 
       {/* Spinner */}
       {spinnerVisible && (
