@@ -70,7 +70,7 @@ export default function CreateAcct() {
           photo: user.photoURL,
         })
       );
-      navigate("/register");
+      navigate("/signup");
     }
   }
 

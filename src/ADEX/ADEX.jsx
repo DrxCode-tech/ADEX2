@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-import { Menu,UserCircle2,HardHat,Bell,TrainFront,UsersRound,AlarmClock } from "lucide-react";
+import { Menu, UserCircle2, HardHat, Bell, TrainFront, UsersRound, AlarmClock } from "lucide-react";
 import SignatureCanvas from "react-signature-canvas";
 import ADEXimge from "../assets/ADEXimge.jpg";
 import { getUser } from "./iDB";
@@ -30,14 +30,48 @@ function Head() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  async function trackPageView() {
+    const key = "NOTP";
+    const today = new Date().toISOString().split("T")[0]; // e.g. "2025-10-05"
+
+    // Get current count from localStorage
+    let count = Number(JSON.parse(localStorage.getItem(key))) || 0;
+    count++;
+    localStorage.setItem(key, JSON.stringify(count));
+    console.log("Page view updated locally:", count);
+
+    // Try syncing with backend if online
+    if (navigator.onLine) {
+      try {
+        const response = await fetch("https://attd-backend.onrender.com/track", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ date: today, count }),
+        });
+
+        if (response.ok) {
+          console.log("Synced with backend successfully");
+          localStorage.removeItem(key); // clear after successful sync
+        } else {
+          console.warn("Failed to sync with backend:", response.status);
+        }
+      } catch (err) {
+        console.warn("Error syncing with backend:", err.message);
+      }
+    }
+  }
+
   useEffect(() => {
     async function fetchUser() {
-      const stud = localStorage.getItem("currentUser");
+      const stud = JSON.parse(localStorage.getItem("currentUser"));
       const storedUser = await getUser();
+      await trackPageView();
       if (storedUser) {
         setUser(storedUser);
-      }else if (stud) {
-        setUser(JSON.parse(stud));
+      } else if (stud) {
+        setUser(stud);
       }
       else {
         navigate("/create");
@@ -183,15 +217,15 @@ function Body() {
   );
 }
 
-function Button(){
-  return <motion.button 
-  whileTap={{scale:1.1}}
-  transition={{
-    duration:1,
-    stiffness:400,
-    type:"spring"
-  }}
-  className="w-[60%] bg-gradient-to-tl from-green-500 to-green-300 px-4 py-2 rounded-2xl flex justify-center items-center text-black font-bold text-xl" >Mark Attendance</motion.button>
+function Button() {
+  return <motion.button
+    whileTap={{ scale: 1.1 }}
+    transition={{
+      duration: 1,
+      stiffness: 400,
+      type: "spring"
+    }}
+    className="w-[60%] bg-gradient-to-tl from-green-500 to-green-300 px-4 py-2 rounded-2xl flex justify-center items-center text-black font-bold text-xl" >Mark Attendance</motion.button>
 }
 
 function Nav() {
@@ -217,14 +251,12 @@ function Nav() {
         >
           <Icon
             size={25}
-            className={`transition-colors duration-300 ${
-              active === id ? "text-green-400 drop-shadow-[0_0_6px_#22c55e]" : "text-gray-400"
-            }`}
+            className={`transition-colors duration-300 ${active === id ? "text-green-400 drop-shadow-[0_0_6px_#22c55e]" : "text-gray-400"
+              }`}
           />
           <p
-            className={`text-xs font-bold mt-1 transition-colors duration-300 ${
-              active === id ? "text-green-400" : "text-gray-600"
-            }`}
+            className={`text-xs font-bold mt-1 transition-colors duration-300 ${active === id ? "text-green-400" : "text-gray-600"
+              }`}
           >
             {label}
           </p>
@@ -234,8 +266,8 @@ function Nav() {
   );
 }
 
-export default function Main(){
-  
+export default function Main() {
+
   return (
     <div className="relative flex flex-col justify-start items-center gap-10 bg-black max-w-3xl h-screen p-4" >
       <Head />

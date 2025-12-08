@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { db } from "../firebase/firestore.jsx";
 import {
   getDoc,
   doc,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase/firebase.jsx";
+import { auth,db } from "../firebase/firebase.jsx";
 import { addUser, deleteUser } from "./iDB.jsx";
 import { useNavigate } from "react-router-dom";
 
