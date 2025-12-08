@@ -221,7 +221,7 @@ export default function CreateAcct() {
       >
         Already have an account?{" "}
         <button onClick={() => navigate("/login")} className="oorder border-none background-transparent text-green-400 cursor-pointer hover:underline">
-          Login now!
+          Login
         </button>
       </motion.p>
     </div>
