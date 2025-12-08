@@ -40,6 +40,8 @@ async function checkUserEmailPresent(user) {
 export default function CreateAcct() {
   const [spinnerVisible, setSpinnerVisible] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [redirectHandled, setRedirectHandled] = useState(false);
+
   const navigate = useNavigate();
 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -81,25 +83,35 @@ export default function CreateAcct() {
     async function handleRedirect() {
       try {
         const result = await getRedirectResult(auth);
-        if (!result) return;
-        await processUser(result.user);
+
+        if (result && result.user) {
+          setRedirectHandled(true);
+          await processUser(result.user);
+        }
       } catch (err) {
         console.error("Redirect error:", err.message);
       }
     }
+
     handleRedirect();
   }, []);
+
 
   // ─────────────────────────────────────────────
   // 🔸 AUTH LISTENER (CATCH ALL CASES)
   // ─────────────────────────────────────────────
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      await processUser(user);
+      if (redirectHandled) return;  // prevent double firing
+
+      if (user) {
+        await processUser(user);
+      }
     });
+
     return () => unsub();
-  }, []);
+  }, [redirectHandled]);
+
 
   // ─────────────────────────────────────────────
   // 🔸 MAIN LOGIN HANDLER (AUTO-CHOOSES METHOD)
